@@ -1,4 +1,4 @@
-function LT_MakeRegs(par, analysis, saveit)
+function LT_MakeRegs(par, task, analysis, saveit)
 %LT_MakeRegs(par, saveit) creates onsets and regresors (boxcar and motion)
 %for use in SPM's GLM.
 %inputs:
@@ -9,106 +9,47 @@ function LT_MakeRegs(par, analysis, saveit)
 %5/15/14 - currently only works for 'analysisByPerf_noPhase'. Will change
 %so that it can make regressors for several different models.
 
+STIMDUR = 0;
 
-if nargin<3
+if nargin<4
     saveit=1;
 end
 
 if ~isstruct(par)
-    par = LT_Params(par, 'lab',1);
+    par = LT_Params(par, task,1);
 end
 
-cd (par.behavdir);
-thisAnalysisDir = fullfile(par.analysisdir, analysis);
+par.stimDur = STIMDUR;
 
-stimDur = 0;
+thisAnalysisDir = fullfile(par.analysisdir, analysis);
 
 switch par.task
     case 'lab'
-        [~, ~, idx] = LTLab_fMRIBehAnalysis_Ret(par);
+        [onsets, names, durations] = makeLabOns(par,analysis);
     case 'cam'
-        [~, ~, idx] = LTCam_fMRIBehAnalysis_Ret(par);
+        error('whoops! don''t know how to do this yet');
 end
 
-perfSet = {'hitSrcCor', 'hitSrcInc' 'hitNoSrc', 'miss', 'CR', 'srcFA', 'noSrcFA'};
-perfNames = {'hitSrcHit', 'hitSrcMiss', 'hitItem', 'miss', 'CR', 'srcFA', 'noSrcFA'};
-srcSet = {'obj', 'face', 'scene', 'new'};
-respSet = {'respObj', 'respFace', 'respScene', 'respOld' ,'respNew'};
-
-switch analysis
-    case 'analysisByPerf_noPhase'
-        i = 0;
-        for p = 1:length(perfSet)
-            for srcNum = 1:length(srcSet)
-                for respNum = 1:length(respSet)
-                    idx.thisOns = idx.(perfSet{p}) .* idx.(srcSet{srcNum}) .*  idx.(respSet{respNum});
-                    
-                    if ~isempty(idx.allTrialOns(find(idx.thisOns)))
-                        i = i+1;
-                        fName = sprintf('%s_%s_%s', perfSet{p}, srcSet{srcNum}, respSet{respNum});
-                        stimOnsets{i} = idx.allTrialOns(find(idx.thisOns));
-                        stimNames{i} = fName;
-                        stimDurations{i} = stimDur;
-                    end
-                end
-            end
-        end
-        
-    case 'ByPerf_noPhase_simple'
-        i = 0;
-        for p = 1:length(perfSet)
-            
-            idx.thisOns = idx.(perfSet{p});
-            if ~isempty(idx.allTrialOns(find(idx.thisOns)))
-                i = i+1;
-                fName = sprintf('%s', perfSet{p});
-                stimOnsets{i} = idx.allTrialOns(find(idx.thisOns));
-                stimNames{i} = fName;
-                stimDurations{i} = stimDur;
-            end
-        end
-
-        
-    case 'analysisByPerfAndPhase'
-        i = 0;
-        phaseName = {'', 'Phase1_','Phase2_','Phase3_','Phase4_'}
-        for p = 1:length(perfSet)
-            for phase = 0:4
-                idx.thisOns = (idx.phase == phase) .* idx.(perfSet{p});
-                
-                if ~isempty(idx.allTrialOns(find(idx.thisOns)))
-                    i = i+1;
-                    fName = sprintf('%s%s', phaseName{phase+1}, perfSet{p});
-                    stimOnsets{i} = idx.allTrialOns(find(idx.thisOns));
-                    stimNames{i} = fName;
-                    stimDurations{i} = stimDur;
-                end
-            end
-        end
-end
-
-
-
-
-
-if sum(idx.junk>0)
-    i= i+1;
-    stimOnsets{i} = idx.allTrialOns(find(idx.junk));
-    stimNames{i} = 'junk';
-    stimDurations{i} = 0;
-end
-
-onsets = stimOnsets;
-names = stimNames;
-durations = stimDurations;
+R = makeMotRegs(par);
 
 if ~exist(thisAnalysisDir)
     mkdir (thisAnalysisDir);
 end
 
-sessReg = zeros(sum(par.lab.numvols),length(par.lab.numvols) -1);
-for i =1:(length(par.lab.numvols) -1)
-    sessReg((i-1)*par.lab.numvols(i)+1:i*par.lab.numvols(i),i) = ones(par.lab.numvols(i),1);
+cd(thisAnalysisDir);
+if saveit
+    save ons.mat onsets durations names;
+    save regs.mat R
+end
+end
+
+
+
+function R = makeMotRegs(par)
+
+sessReg = zeros(sum(par.(par.task).numvols),length(par.(par.task).numvols) -1);
+for i =1:(length(par.(par.task).numvols) -1)
+    sessReg((i-1)*par.(par.task).numvols(i)+1:i*par.(par.task).numvols(i),i) = ones(par.(par.task).numvols(i),1);
 end
 
 motRegs = [];
@@ -118,9 +59,4 @@ for runNum =1:length(par.(par.task).numvols)
 end
 
 R = horzcat(sessReg,motRegs);
-
-cd(thisAnalysisDir);
-if saveit
-    save ons.mat onsets durations names;
-    save regs.mat R
 end
