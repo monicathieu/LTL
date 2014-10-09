@@ -2,8 +2,7 @@ function [onsets, names, durations] = makeLabOns(par, analysis)
 
 [~, ~, idx] = LTLab_fMRIBehAnalysis_Ret(par);
 
-perfSet = {'hitSrcCor', 'hitSrcInc' 'hitNoSrc', 'miss', 'CR', 'srcFA', 'noSrcFA'};
-perfNames = {'hitSrcHit', 'hitSrcMiss', 'hitItem', 'miss', 'CR', 'srcFA', 'noSrcFA'};
+perfSet = {'srcHit', 'hitSrcMiss' 'itemHit', 'miss', 'CR', 'srcFA', 'noSrcFA'};
 srcSet = {'obj', 'face', 'scene', 'new'};
 respSet = {'respObj', 'respFace', 'respScene', 'respOld' ,'respNew'};
 

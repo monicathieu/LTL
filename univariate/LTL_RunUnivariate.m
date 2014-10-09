@@ -100,7 +100,7 @@ end
 % if ismember('z',flags); reconAllBatch(par); end
 
 % Modeling, etc
-    if ismember('r',flags); LT_MakeRegs(par,analysis); end
+    if ismember('r',flags); LT_MakeRegs(par,task, analysis); end
     
 %for t = 1:length(par.Tasks)
     if ismember('p',flags); LT_mod_spec(par,analysis); end

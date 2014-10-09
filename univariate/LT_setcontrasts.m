@@ -1,11 +1,11 @@
-function [] = LT_setcontrasts(par,analysis,overwrite)
+function [] = LT_setcontrasts(par,task,analysis,overwrite)
 
 origdir = pwd;
 if nargin < 3
     overwrite = input('do you want to overwrite existing contrasts? (1 = yes; 0 = no)');
 end
 if ~isstruct(par) 
-    par = LT_Params(par);
+    par = LT_Params(par, task);
 end
 
 STAT = par.constat;
@@ -29,61 +29,13 @@ regNames = SPM.xX.name;
 
 idx.bf1 = ~cellfun('isempty', strfind(regNames,'bf(1)'));
 
-switch analysis
-    case 'analysisByPerf_noPhase'
-        idx.allHit = ~cellfun('isempty', strfind(regNames,'hit'));
-        idx.hitSrcCor = ~cellfun('isempty', strfind(regNames,'hitSrcCor'));
-        idx.hitSrcInc = ~cellfun('isempty', strfind(regNames,'hitSrcInc'));
-        idx.hitNoSrc = ~cellfun('isempty', strfind(regNames,'hitNoSrc'));
-        idx.miss = ~cellfun('isempty', strfind(regNames,'miss'));
-        idx.CR = ~cellfun('isempty', strfind(regNames,'CR'));
-        idx.FA = ~cellfun('isempty', strfind(regNames,'FA'));
-
-        
-
-        idx.respObj = ~cellfun('isempty', strfind(regNames,'respObj'));
-        idx.respFace = ~cellfun('isempty', strfind(regNames,'respFace'));
-        idx.respScene = ~cellfun('isempty', strfind(regNames,'respScene'));
-
-        idx.obj = ~cellfun('isempty', strfind(regNames,'_obj_'));
-        idx.face = ~cellfun('isempty', strfind(regNames,'_face_'));
-        idx.scene = ~cellfun('isempty', strfind(regNames,'_scene_'));
-
-        con.all_gr_Baseline = idx.bf1;
-        con.hit_gr_CR = idx.bf1 .* balCon_SimpFx(idx.allHit - idx.CR);
-        con.hit_gr_Miss = idx.bf1 .* balCon_SimpFx(idx.allHit - idx.miss);
-        con.hitSrcHit_gr_hitSrcMiss = idx.bf1 .* balCon_SimpFx(idx.hitSrcCor - idx.hitSrcInc);
-        con.hitSrcHit_gr_hitItemHit = idx.bf1 .* balCon_SimpFx(idx.hitSrcCor - idx.hitNoSrc);
-    case 'ByPerf_noPhase_simple'
-        idx.allHit = ~cellfun('isempty', strfind(regNames,'hit'));
-        idx.hitSrcCor = ~cellfun('isempty', strfind(regNames,'hitSrcCor'));
-        idx.hitSrcInc = ~cellfun('isempty', strfind(regNames,'hitSrcInc'));
-        idx.hitNoSrc = ~cellfun('isempty', strfind(regNames,'hitNoSrc'));
-        idx.miss = ~cellfun('isempty', strfind(regNames,'miss'));
-        idx.CR = ~cellfun('isempty', strfind(regNames,'CR'));
-        idx.FA = ~cellfun('isempty', strfind(regNames,'FA'));
-
-        con.all_gr_Baseline = idx.bf1;
-        con.hit_gr_CR = idx.bf1 .* balCon_SimpFx(idx.allHit - idx.CR);
-        con.hit_gr_Miss = idx.bf1 .* balCon_SimpFx(idx.allHit - idx.miss);
-        con.hitSrcHit_gr_hitSrcMiss = idx.bf1 .* balCon_SimpFx(idx.hitSrcCor - idx.hitSrcInc);
-        con.hitSrcHit_gr_hitItemHit = idx.bf1 .* balCon_SimpFx(idx.hitSrcCor - idx.hitNoSrc);
-    
-    
-    case 'analysisByPerfAndPhase'
-        idx.hits = ~cellfun('isempty', strfind(regNames,'hit'));
-        idx.phase1 = ~cellfun('isempty', strfind(regNames,'Phase1'));
-        idx.phase3 = ~cellfun('isempty', strfind(regNames,'Phase3'));
-        idx.phase4 = ~cellfun('isempty', strfind(regNames,'Phase4'));
-        idx.CR = ~cellfun('isempty', strfind(regNames,'CR'));
-        idx.phase3hits = idx.hits .* idx.phase3;
-        idx.phase1hits = idx.hits .* idx.phase1;
-        idx.phase3and1hits =idx.phase1hits + idx.phase3hits;
-        idx.phase4hits = idx.hits .* idx.phase4;
-        con.phase4hits_gr_phase3and1hits = idx.bf1 .* balCon_SimpFx(idx.phase4hits - idx.phase3and1hits);
-        con.hit_gr_CR = idx.bf1 .* balCon_SimpFx(idx.hits - idx.CR);
+switch task 
+    case 'lab'
+        labSetCons(regNames, analysis);
+    case 'cam'
+        error('we don''t know how to handle this yet');
 end
-
+       
 
 fn_con = fieldnames(con);
 
@@ -182,4 +134,73 @@ function con = padConWithZeros( cIn, Xsize )
 conLength = length(cIn);
 nZeros = Xsize - conLength;
 con = [cIn zeros(1,nZeros)];
+end
+
+
+function con = labSetCons(regNames, analysis)
+switch analysis
+    case 'analysisByPerf_noPhase'
+        idx.allHit = ~cellfun('isempty', strfind(regNames,'hit'));
+        idx.srcHit = ~cellfun('isempty', strfind(regNames,'srcHit'));
+        idx.hitSrcMiss = ~cellfun('isempty', strfind(regNames,'hitSrcMiss'));
+        idx.itemHit = ~cellfun('isempty', strfind(regNames,'itemHit'));
+        idx.miss = ~cellfun('isempty', strfind(regNames,'miss'));
+        idx.CR = ~cellfun('isempty', strfind(regNames,'CR'));
+        idx.FA = ~cellfun('isempty', strfind(regNames,'FA'));
+
+        idx.respObj = ~cellfun('isempty', strfind(regNames,'respObj'));
+        idx.respFace = ~cellfun('isempty', strfind(regNames,'respFace'));
+        idx.respScene = ~cellfun('isempty', strfind(regNames,'respScene'));
+
+        idx.obj = ~cellfun('isempty', strfind(regNames,'_obj_'));
+        idx.face = ~cellfun('isempty', strfind(regNames,'_face_'));
+        idx.scene = ~cellfun('isempty', strfind(regNames,'_scene_'));
+
+        con.all_gr_Baseline = idx.bf1;
+        con.hit_gr_CR = idx.bf1 .* balCon_SimpFx(idx.allHit - idx.CR);
+        con.hit_gr_Miss = idx.bf1 .* balCon_SimpFx(idx.allHit - idx.miss);
+        con.hitSrcHit_gr_hitSrcMiss = idx.bf1 .* balCon_SimpFx(idx.srcHit - idx.hitSrcMiss);
+        con.hitSrcHit_gr_hitItemHit = idx.bf1 .* balCon_SimpFx(idx.srcHit - idx.itemHit);
+    case 'ByPerf_noPhase_simple'
+        idx.allHit = ~cellfun('isempty', strfind(regNames,'hit'));
+        idx.srcHit = ~cellfun('isempty', strfind(regNames,'srcHit'));
+        idx.hitSrcMiss = ~cellfun('isempty', strfind(regNames,'hitSrcMiss'));
+        idx.itemHit = ~cellfun('isempty', strfind(regNames,'itemHit'));
+        idx.miss = ~cellfun('isempty', strfind(regNames,'miss'));
+        idx.CR = ~cellfun('isempty', strfind(regNames,'CR'));
+        idx.FA = ~cellfun('isempty', strfind(regNames,'FA'));
+
+        con.all_gr_Baseline = idx.bf1;
+        con.hit_gr_CR = idx.bf1 .* balCon_SimpFx(idx.allHit - idx.CR);
+        con.hit_gr_Miss = idx.bf1 .* balCon_SimpFx(idx.allHit - idx.miss);
+        con.hitSrcHit_gr_hitSrcMiss = idx.bf1 .* balCon_SimpFx(idx.srcHit - idx.hitSrcMiss);
+        con.hitSrcHit_gr_hitItemHit = idx.bf1 .* balCon_SimpFx(idx.srcHit - idx.itemHit);   
+    case 'analysisByPerfAndPhase'
+        idx.srcHit = ~cellfun('isempty', strfind(regNames,'srcHit'));
+        idx.itemHit = ~cellfun('isempty', strfind(regNames,'itemHit'));
+        idx.hits = ~cellfun('isempty', strfind(regNames,'hit'));
+        idx.phase1 = ~cellfun('isempty', strfind(regNames,'Phase1'));
+        idx.phase3 = ~cellfun('isempty', strfind(regNames,'Phase3'));
+        idx.phase4 = ~cellfun('isempty', strfind(regNames,'Phase4'));
+        idx.CR = ~cellfun('isempty', strfind(regNames,'CR'));
+        idx.phase3hits = idx.hits .* idx.phase3;
+        idx.phase1Hit = idx.hits .* idx.phase1;
+        idx.phase3and1hits =idx.phase1hits + idx.phase3hits;
+        idx.phase4Hit = idx.hits .* idx.phase4;
+        idx.phase4SrcHit = idx.srcHit .* idx.phase4;
+        idx.phase4ItemHit = idx.itemHit .* idx.phase4;
+        idx.phase4SrcHit = idx.srcHit .* idx.phase1;
+        idx.phase4ItemHit = idx.itemHit .* idx.phase1;
+        
+        con.srcHit_gr_itemHit = idx.bf1 .* balCon_SimpFx(idx.srcHit - idx.itemHit);
+        con.srcHit_gr_itemHit_inPhase4 = idx.bf1 .* balCon_SimpFx(idx.phase4SrcHit - idx.phase4ItemHit);
+        con.srcHit_gr_itemHit_inPhase1 = idx.bf1 .* balCon_SimpFx(idx.phase1SrcHit - idx.phase1ItemHit);
+        con.hit_gr_CR = idx.bf1 .* balCon_SimpFx(idx.hits - idx.CR);
+        con.hit_gr_CR_inPhase4 = idx.bf1 .* balCon_SimpFx(idx.phase4Hit - idx.CR);
+        con.hit_gr_CR_inPhase1 = idx.bf1 .* balCon_SimpFx(idx.phase1Hit - idx.CR);
+        con.phase4hits_gr_phase3and1hits = idx.bf1 .* balCon_SimpFx(idx.phase4hits - idx.phase3and1hits);
+        con.hits_phase4_gr_phase1 = idx.bf1 .* balCon_SimpFx(idx.phase4Hit - idx.phase1Hit);
+        con.srcHit_phase4_gr_phase1 = idx.bf1 .* balCon_SimpFx(idx.phase4SrcHit - idx.phase1SrcHit);
+
+end
 end
