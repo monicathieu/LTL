@@ -100,12 +100,12 @@ end
 % if ismember('z',flags); reconAllBatch(par); end
 
 % Modeling, etc
-    if ismember('r',flags); LT_MakeRegs(par,analysis); end
+    if ismember('r',flags); LT_MakeRegs(par,task, analysis); end
     
 %for t = 1:length(par.Tasks)
     if ismember('p',flags); LT_mod_spec(par,analysis); end
     if ismember('e',flags); LT_mod_est(par,analysis); end
-    if ismember('t',flags), LT_setcontrasts(par,analysis,1); end
+    if ismember('t',flags), LT_setcontrasts(par,'lab',analysis,1); end
     
 %end
 
