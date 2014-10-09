@@ -1,0 +1,25 @@
+function LTLab_MakeRegs(par)
+STIMDUR = 0;
+
+cd(par.behavdir);
+
+dFN = dir(');
+fileNames = (dFN.name);
+
+countdown = 0; 
+
+[res psy idx] = LTLab_fMRIBehAnalysis_Ret(par);
+
+i = 0;
+for each onset
+idx.thisOns = ...
+if ~isempty(idx.alltrials(find(idx.thisOns)))
+	i = i+1;
+fName = sprintf(...
+stimOnsets(i) = idx.alltrials(find(idx.thisOns));
+stimnames{i} = fName;
+stimDurations{i} = STIMDUR;
+end
+
+
+

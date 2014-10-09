@@ -1,0 +1,180 @@
+---
+title: "Long Term Lab Behavioral Summary"
+output: html_document
+---
+```{r load necessary packages and dataframe, echo=FALSE}
+library(ggplot2)
+require(gridExtra)
+require(lme4)
+require(plyr)
+#load data (refers to csv made by behavioral analysis script pulling directly from logfiles)
+ltl = read.csv('~/Dropbox/LTLab/docs/LTL_AllLogs.csv',header=T)
+
+ltl$srchand="L"
+ltl$srchand[ltl$subNum %% 2 & ltl$runNum>4]="R"
+ltl$srchand[!ltl$subNum %% 2 & ltl$runNum<=4]="R"
+ltl$srchand = factor(ltl$srchand)
+
+ltl$target[ltl$target=="Y"]="OLD"
+ltl$target=factor(ltl$target)
+
+ltl$rt=as.numeric(as.character(ltl$rt))
+ltl$rt[ltl$rt==0]=NA
+
+ltl$delay=factor(ltl$interval,labels=c("NEW","8mo","2mo","1hr"))
+ltl$subID = factor(ltl$subNum)
+
+
+```
+
+```{r meanAndSem function, echo=F}
+meanAndSem=function(x) c(mn = mean(x,na.rm=TRUE), se = sd(x,na.rm=T)/sqrt((sum(as.double(!is.na(x))))), len=sum(as.double(!is.na(x))))
+```
+
+*Cleaning Data* response excluded if:
+<li>rt > 4s.
+```{r clean RTs, echo=FALSE}
+#for now, let's clean RTs equal to 0s, or longer than 4s
+ltl$rt=as.numeric(as.character(ltl$rt))
+ltl$rt[ ltl$rt>4]=NA
+```
+<li>a non repeat button is pressed (i.e. save 22, remove 23)
+```{r clean unexpected responses, echo=FALSE}
+#current strategy is to fix double responses (i.e. 33 and remove everything else, i.e. 34)
+ltl$resp[ltl$resp==22]=2
+ltl$resp[ltl$resp==33]=3
+ltl$resp[ltl$resp==44]=4
+ltl$resp[ltl$resp==77]=7
+ltl$resp[ltl$resp==88]=8
+ltl$resp[ltl$resp==99]=9
+ltl$resp[!(ltl$resp %in% c(2,3,4,7,8,9))] = NA
+#set all responses to correspond with left hands
+newresp = ltl$resp
+newresp[ltl$srchand=="R" & ltl$resp==3]=8
+newresp[ltl$srchand=="R" & ltl$resp==4]=9
+newresp[ltl$srchand=="R" & ltl$resp==7]=2
+newresp[ltl$srchand=="R" & ltl$resp==8]=3
+newresp[ltl$srchand=="R" & ltl$resp==9]=4
+ltl$resp=newresp
+ltl$resp[ltl$resp==7]=NA
+#relabel these to get away from confusing numbers
+leftkey = c("OBJ","FACE","SCENE","NEW","OLD")
+ltl$resp = factor(ltl$resp, labels=leftkey)
+
+```
+Let's see what we had and then what we have left
+```{r count response cats, echo=FALSE}
+as.data.frame(table(ltl[,c("subID","delay")]))
+as.data.frame(table(ltl[!is.na(ltl$resp),c("subID","delay")]))
+```
+Here's what we learn:
+<li><s>subjects 8, 9, 12, 13, 14, & 16 have a couple "impossible" pictures categorized with target = NEW, but delay in (2mo or 1hr).</s> These have been fixed in the data frame. All were truly NEW, so the dataframe was modified to reflect this.
+<li>subjects 8, & 13 are missing a bunch of responses
+
+
+
+```{r add memory indicators to dataframe, echo=FALSE }
+ltl$hit=as.numeric(ltl$target=="OLD" & ltl$resp %in% c("OLD","OBJ","FACE","SCENE"))
+ltl$srcHit=as.numeric(ltl$target=="OLD" & as.character(ltl$picCat)==as.character(ltl$resp))
+ltl$itemHit=as.numeric(ltl$target=="OLD" & ltl$resp=="OLD")
+ltl$srcMiss=as.numeric(ltl$target=="OLD" & ltl$resp %in% c("OBJ","FACE","SCENE") & as.character(ltl$picCat)!=as.character(ltl$resp))
+ltl$fa = as.numeric(ltl$target=="NEW" & ltl$resp %in% c("OLD","OBJ","FACE","SCENE"))
+ltl$faItem = as.numeric(ltl$target=="NEW" & ltl$resp == 'OLD')
+ltl$faSrc = as.numeric(ltl$target=="NEW" & ltl$resp %in% c("OBJ","FACE","SCENE"))
+ltl$miss = as.numeric(ltl$target=="OLD" & ltl$resp=="NEW")
+ltl$cr = as.numeric(ltl$target=="NEW" & ltl$resp=="NEW")
+```
+
+```{r create function to add accuracy to dataframe, echo=FALSE }
+addMemCat = function(df){
+  df$memType[df$srcHit==1]='Hit1-srcHit'
+  df$memType[df$itemHit==1]='Hit3-itemOnly'
+  df$memType[df$srcMiss==1]='Hit2-srcMiss'
+  df$memType[df$cr==1]='CR'
+  df$memType[df$faItem==1]='FA-item'
+  df$memType[df$faSrc==1]='FA-src'
+  df$memType[df$miss==1]='Miss'
+  df$mem=df$memType
+  df$mem[df$hit==1]='Hit'
+  df$mem[df$fa==1]='FA'
+  return(df)
+}
+```
+
+```{r add single memCat col to ltl dataframe, echo=FALSE}
+ltl=addMemCat(ltl)
+```
+
+```{r make old and new subsets, echo=FALSE }
+ltlOld = subset(ltl,target=="OLD")
+ltlOld$delay=factor(ltlOld$delay)
+ltlHit=subset(ltlOld,hit==1)
+ltlNew = subset(ltl,target=="NEW")
+ltlNew$target=factor(ltlNew$target)
+```
+
+```{r errorbars maker, echo=FALSE}
+errbars= aes(ymin=Freq[,"mn"]-Freq[,"se"],ymax=Freq[,"mn"]+Freq[,"se"])
+
+```
+
+---------
+Let's look at some useful plots 
+
+**Response Times by delay and memory class** 
+
+```{r quick RTs, echo=FALSE}
+rt_df = aggregate(cbind(rt)~delay+memType,ltl,meanAndSem)
+ggplot(rt_df,aes(y=rt[,"mn"],x=delay,fill=memType))+geom_bar(stat='identity',position="dodge")+geom_errorbar(aes(ymin=rt[,"mn"]-rt[,"se"],ymax=rt[,"mn"]+rt[,"se"]),position=position_dodge(.9),width=.4)+labs(y="Response Time (s)",x="Delay")
+```
+
+**Response Frequencies by delay and memory class**
+
+```{r response frequencies, echo=FALSE}
+memTypeCounts=as.data.frame(table(ltlOld[!is.na(ltl$resp),c("subID","delay","memType")]))
+oldCounts = as.data.frame(table(ltlOld[!is.na(ltl$resp),c("subID","delay")]))
+memTypeCounts$Freq=memTypeCounts$Freq/oldCounts$Freq
+memPlotDf = aggregate(Freq~memType+delay,memTypeCounts,meanAndSem)
+memPlotDfSub = aggregate(Freq~memType+delay+subID,memTypeCounts,meanAndSem)
+ggplot(memPlotDf,aes(x=delay,y=Freq[,"mn"],fill=memType))+geom_bar(stat='identity',position="dodge")+geom_errorbar(errbars,position=position_dodge(.9),width=.4)+labs(y="Frequency",x="Delay")
+```
+
+**Response Frequencies by delay and memory class *including FAs. note: color change***
+
+```{r response frequencies with FAs, echo=FALSE}
+memTypeCounts=as.data.frame(table(ltl[!is.na(ltl$resp),c("subID","delay","memType")]))
+oldCounts = as.data.frame(table(ltl[!is.na(ltl$resp),c("subID","delay")]))
+memTypeCounts$Freq=memTypeCounts$Freq/oldCounts$Freq
+memTypeCounts$memType = factor(memTypeCounts$memType, levels=c("Hit1-srcHit","Hit2-srcMiss","Hit3-itemOnly","Miss","CR","FA-item","FA-src"))
+memPlotDf = aggregate(Freq~memType+delay,memTypeCounts,meanAndSem)
+memPlotDfSub = aggregate(Freq~memType+delay+subID,memTypeCounts,meanAndSem)
+ggplot(memPlotDf,aes(x=delay,y=Freq[,"mn"],fill=memType))+geom_bar(stat='identity',position="dodge")+geom_errorbar(errbars,position=position_dodge(.9),width=.4)+labs(y="Frequency",x="Delay")
+```
+
+**d' by delay only** 
+
+```{r d prime, echo=FALSE}
+ltlNew = subset(ltl, target=="NEW")
+farBySub = aggregate(fa~subID,ltlNew,meanAndSem)
+
+hrBySub = aggregate(hit~subID,ltlOld,meanAndSem)
+hrBySub$dprime = qnorm(hrBySub$hit[,"mn"])-qnorm(farBySub$fa[,"mn"])
+
+hrBySubByDelay = aggregate(hit~subID+delay,ltlOld,meanAndSem)
+hrBySubByDelay$dprime = qnorm(hrBySubByDelay$hit[,"mn"])-qnorm(farBySub$fa[,"mn"])
+
+hrByDelay = aggregate(dprime~delay,hrBySubByDelay,meanAndSem)
+
+ggplot(hrByDelay,aes(y=dprime[,"mn"],x=delay))+geom_bar(stat='identity',fill="white")+geom_point(data=hrBySubByDelay,aes(y=dprime,x=delay,color=subID),position=position_jitter(.05))+geom_errorbar(aes(ymin=dprime[,"mn"]-dprime[,"se"],ymax=dprime[,"mn"]+dprime[,"se"]),position=position_dodge(.9),width=.3)+labs(y="d'",x="Delay")
+```
+
+If needed, here's some code that may be helpful for doing error checking on the stimlists
+```{r errorchecking code}
+#requires that the input comes as two compiled csv. Easy to create using cat *0XX*study and cat *0XX*test in terminal
+checkStudyTest = function(study, test){
+  for ( i in 1:length(test$wordName)){
+    word = as.character(test$wordName[i])
+    test$found[i] = as.numeric(test$target[i]=="OLD")*as.numeric(length(study$wordName[study$wordName==as.character(word)])>0)
+     }
+  }
+```
