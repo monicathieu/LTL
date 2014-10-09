@@ -183,6 +183,8 @@ par.funcdir = fullfile(par.subdir,'functional');
 par.behavdir = fullfile(par.subdir, 'behav');
 par.logdir = fullfile(par.subdir,'logfiles');
 par.analysisdir = fullfile(par.subdir, 'analysis');
+par.mvpadir = fullfile(par.analysisdir, [task 'MVPA']);
+
 
 %univariate SPM setup
 par.timing.fmri_t = 36;

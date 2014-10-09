@@ -36,12 +36,12 @@ buttonRemap = {'OBJ' 'FACE' 'SCENE' 'OLD' 'NEW'};
 resp = cat(2,trialData.resp);
 resp = str2double(resp);
 if FIXDOUBLERESPS == 1
-    doubleresps = resp
-    doubleresps(isnan(resp))=-1
-    doubleresps=(mod(doubleresps,11)==0)
+    doubleresps = resp;
+    doubleresps(isnan(resp))=-1;
+    doubleresps=(mod(doubleresps,11)==0);
     resp(doubleresps) = floor(resp(doubleresps)/10);
 end
-resp(resp>10 | resp < 1) = nan
+resp(resp>10 | resp < 1) = nan;
 
 % transform the responses to [1 2 3 4 5] = [object face scene old new]. to
 % do this, we have to modify resps from each hand separately
@@ -77,7 +77,7 @@ valid_trials = ~idx.excludedRts .* ismember(resp,[1 2 3 4 5])';
 oldNew = cat(1,trialData.target);
 sourcestr = cat(1, trialData.picCat);
 idx.runNum = trialRunNum;
-idx.time0 = cat(2,trialData.onset)';
+idx.trialTime0 = cat(2,trialData.onset)';
 %stim attributes
 idx.old = ismember(oldNew, {'OLD','Y'});
 idx.obj = strcmp('OBJ', sourcestr) .* idx.old;
@@ -99,7 +99,10 @@ idx.respOld = (resp' == 4);
 idx.respNew = (resp' == 5);
 
 %keep track of onsets and junk responses
-idx.allTrialOns = idx.time0 - 10 + ((idx.runNum-1) .* par.lab.numvols(idx.runNum)' * par.TR);%ownership-1 .* numvols * TR + stim_on'
+idx.allTrialOns_fixation = idx.trialTime0 - 10 + ((idx.runNum-1) .* par.lab.numvols(idx.runNum)' * par.TR);%ownership-1 .* numvols * TR + stim_on'
+idx.allTrialOns_word = idx.allTrialOns_fixation + 1.5;
+idx.allTrialOns = idx.allTrialOns_word;
+idx.allTrialOns_prompt = idx.allTrialOns_word + 1.5;
 idx.junk = ~(valid_trials);
 
 %given these images and responses, what are the outcomes?
