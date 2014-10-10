@@ -6,7 +6,7 @@ subsToInclude = substrArray(subjArray);
 gpar.subjArray = subjArray;
 gpar.thisAnalysis = analysis;
 
-gpar.exptdir = '/Volumes/Tyler_Drive1/LTLab/data/fmri';
+gpar.exptdir = '/Volumes/Tyler_Drive1/LTLab/fmri_data';
 gpar.modelTemplate = '/Volumes/Tyler_Drive1/LTLab/scripts/analysis/univariate/GroupTemplate.mat';
 gpar.mask = '';
 gpar.constat = 'T';
