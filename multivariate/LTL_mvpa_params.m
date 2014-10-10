@@ -64,7 +64,7 @@ switch S.trainTask
     case 'obj_face_scene'
         parTr = LT_Params(subj_id, 'lab');
         S.onsetsTrainDir = [S.expt_dir S.subj_id '/analysis/labMVPA/'];
-        S.condsTrain = {{'old'}  {'new'} } ;
+        S.condsTrain = {{'obj'}  {'face'} {'scene'} } ;
         % %     S.dnCondsTrain = {{'face'}  {'house'} {'noise'}};
         S.TrainRuns = par.scansSelect.(par.task);
         S.durTrain = sum(par.(par.task).numvols(S.TrainRuns)) * par.TR;
@@ -85,7 +85,7 @@ switch S.testTask
     case 'obj_face_scene'
         parTr = LT_Params(subj_id, 'lab');
         S.onsetsTestDir = [S.expt_dir S.subj_id '/analysis/labMVPA/'];
-        S.condsTest = {{'old'}  {'new'} } ;
+        S.condsTest = {{'obj'}  {'face'} {'scene'} } ;
         S.TestRuns = par.scansSelect.(par.task);
         S.durTest = sum(par.(par.task).numvols(S.TestRuns)) * par.TR;
         S.filenames_test = vertcat(par.swascanfilesByRun.lab{S.TestRuns});
@@ -167,7 +167,8 @@ S.secondaryMask = []; % secondary mask (the specific classification mask)
 
 %% Workspace Parameters
 S.use_premade_workspace = 1;
-S.workspace = fullfile(S.workspace_dir, [S.subj_id '_' S.roi_name '_' S.smoothTxt{S.funcType} '_train_' S.trainTask '_test_' S.testTask S.preprocType '.mat']);
+% S.workspace = fullfile(S.workspace_dir, [S.subj_id '_' S.roi_name '_' S.smoothTxt{S.funcType} '_train_' S.trainTask '_test_' S.testTask S.preprocType '.mat']);
+S.workspace = fullfile(S.workspace_dir, [S.subj_id '_' S.roi_name '_' S.smoothTxt{S.funcType} '.mat']);
 
 
 
