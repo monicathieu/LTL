@@ -26,8 +26,8 @@ S.workspace_dir = [par.subdir '/' 'mvpa_workspace'];
 S.preprocType = 'spm'; % 'spm' for spm preprocessing, 'knk' for kendrick preprocessing
 S.loadAndPreprocFunctName = 'JR_mvpa_load_and_preprocess_raw_data';
 %% tasks
-S.trainTask = 'OLDNEW';
-S.testTask = 'OLDNEW';
+S.trainTask = 'obj_face_scene';
+S.testTask = 'obj_face_scene';
 
 %% cross-validation scheme
 if strcmp(S.trainTask, S.testTask)
@@ -140,30 +140,12 @@ S.vol_info = spm_vol(fullfile(par.funcdir, 'test01', 'swavol0005.nii')); %get fu
 % % S.roiWithNonTaksVoxels = fullfile(par.anatdir, 'tnativeOccTemp.nii');
 % % S.roiWithNonTaksVoxelsName = 'tnativeOccTemp.nii';
 
-%S.roi_name = ['parietalNoPostCentral.img'];
-%S.roi_file = '/biac4/wagner/biac3/wagner5/alan/perceptMnemonic/fmri_data/masks/parietalNoPostCentral.img';
 S.roi_file = [S.expt_dir '/Masks/rSEPT09_MVPA_MASK_resliced4mm.nii'];
 S.roi_name = 'rSEPT09_MVPA_MASK_resliced4mm.nii';
 
-%S.roi_name = 'rc1V001.nii';
-%S.roi_file = fullfile(S.anat_dir, S.roi_name);
-
-%S.roi_name = 'tnativeOccTemp.nii';
-%S.roi_file = fullfile(par.anatdir, S.roi_name);
-
-% % S.noiseVoxels_file = fullfile(par.anatdir, 'rnativec2V001.nii');
-% % S.noiseVoxels_name = 'rnativec2V001.nii';
-% % 
-% % S.sigVoxels_file = fullfile(par.anatdir, 'tnativeOccTempGrey.nii');
-% % S.sigVoxels_name = 'tnativeOccTempGrey.nii';
-
 S.secondaryMask = []; % secondary mask (the specific classification mask)
 %masks the primary data loaded in the workspace. [] = no secondary mask.
-%S.secondaryMask = fullfile(par.anatdir, 'tnativeOccTempGrey.nii');
-%S.secondaryMask = ['/biac4/wagner/biac3/wagner5/alan/perceptMnemonic/fmri_data/masks/OTnoHipp.img'];
-%S.secondaryMask = ['/Users/gordonam/Studies/AG1/mvpa/OT_2012/rhipp.img'];
-%S.secondaryMask = ['/biac4/wagner/biac3/wagner5/alan/perceptMnemonic/fmri_data/masks/rparietal.img'];
-
+%S.secondaryMask = [S.expt_dir 'rLTL_loc_Faces_gr_Scenes05k5.img'];
 
 %% Workspace Parameters
 S.use_premade_workspace = 1;
