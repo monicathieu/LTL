@@ -179,7 +179,9 @@ switch analysis
     case 'analysisByPerfAndPhase'
         idx.srcHit = ~cellfun('isempty', strfind(regNames,'srcHit'));
         idx.itemHit = ~cellfun('isempty', strfind(regNames,'itemHit'));
-        idx.hit = ~cellfun('isempty', strfind(regNames,'hit'));
+        
+        idx.hit = ~cellfun('isempty', strfind(regNames,'Hit'))+~cellfun('isempty', strfind(regNames,'hit'));
+        
         idx.phase1 = ~cellfun('isempty', strfind(regNames,'Phase1'));
         idx.phase3 = ~cellfun('isempty', strfind(regNames,'Phase3'));
         idx.phase4 = ~cellfun('isempty', strfind(regNames,'Phase4'));
