@@ -143,9 +143,9 @@ S.vol_info = spm_vol(fullfile(par.funcdir, 'test01', 'swavol0005.nii')); %get fu
 S.roi_file = [S.expt_dir '/Masks/rSEPT09_MVPA_MASK_resliced4mm.nii'];
 S.roi_name = 'rSEPT09_MVPA_MASK_resliced4mm.nii';
 
-S.secondaryMask = []; % secondary mask (the specific classification mask)
+%S.secondaryMask = []; % secondary mask (the specific classification mask)
 %masks the primary data loaded in the workspace. [] = no secondary mask.
-%S.secondaryMask = [S.expt_dir 'rLTL_loc_Faces_gr_Scenes05k5.img'];
+S.secondaryMask = [S.expt_dir '/Masks/rLTL_loc_Faces_gr_Scenes05k5.img'];
 
 %% Workspace Parameters
 S.use_premade_workspace = 1;

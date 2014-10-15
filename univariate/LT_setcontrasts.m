@@ -143,7 +143,7 @@ switch analysis
     case 'analysisByPerf_noPhase'
         idx.allHit = ~cellfun('isempty', strfind(regNames,'hit'));
         idx.srcHit = ~cellfun('isempty', strfind(regNames,'srcHit'));
-        idx.hitrcMiss = ~cellfun('isempty', strfind(regNames,'hitrcMiss'));
+        idx.hitSrcMiss = ~cellfun('isempty', strfind(regNames,'hitSrcMiss'));
         idx.itemHit = ~cellfun('isempty', strfind(regNames,'itemHit'));
         idx.miss = ~cellfun('isempty', strfind(regNames,'miss'));
         idx.CR = ~cellfun('isempty', strfind(regNames,'CR'));
@@ -160,12 +160,12 @@ switch analysis
         con.all_gr_Baseline = idx.bf1;
         con.hit_gr_CR = idx.bf1 .* balCon_SimpFx(idx.allHit - idx.CR);
         con.hit_gr_Miss = idx.bf1 .* balCon_SimpFx(idx.allHit - idx.miss);
-        con.hitrcHit_gr_hitrcMiss = idx.bf1 .* balCon_SimpFx(idx.srcHit - idx.hitrcMiss);
-        con.hitrcHit_gr_hitItemHit = idx.bf1 .* balCon_SimpFx(idx.srcHit - idx.itemHit);
+        con.hitSrcHit_gr_hitSrcMiss = idx.bf1 .* balCon_SimpFx(idx.srcHit - idx.hitSrcMiss);
+        con.hitSrcHit_gr_hitItemHit = idx.bf1 .* balCon_SimpFx(idx.srcHit - idx.itemHit);
     case 'ByPerf_noPhase_simple'
         idx.allHit = ~cellfun('isempty', strfind(regNames,'hit'));
         idx.srcHit = ~cellfun('isempty', strfind(regNames,'srcHit'));
-        idx.hitrcMiss = ~cellfun('isempty', strfind(regNames,'hitrcMiss'));
+        idx.hitSrcMiss = ~cellfun('isempty', strfind(regNames,'hitSrcMiss'));
         idx.itemHit = ~cellfun('isempty', strfind(regNames,'itemHit'));
         idx.miss = ~cellfun('isempty', strfind(regNames,'miss'));
         idx.CR = ~cellfun('isempty', strfind(regNames,'CR'));
@@ -174,8 +174,8 @@ switch analysis
         con.all_gr_Baseline = idx.bf1;
         con.hit_gr_CR = idx.bf1 .* balCon_SimpFx(idx.allHit - idx.CR);
         con.hit_gr_Miss = idx.bf1 .* balCon_SimpFx(idx.allHit - idx.miss);
-        con.hitrcHit_gr_hitrcMiss = idx.bf1 .* balCon_SimpFx(idx.srcHit - idx.hitrcMiss);
-        con.hitrcHit_gr_hitItemHit = idx.bf1 .* balCon_SimpFx(idx.srcHit - idx.itemHit);   
+        con.hitSrcHit_gr_hitSrcMiss = idx.bf1 .* balCon_SimpFx(idx.srcHit - idx.hitSrcMiss);
+        con.hitSrcHit_gr_hitItemHit = idx.bf1 .* balCon_SimpFx(idx.srcHit - idx.itemHit);   
     case 'analysisByPerfAndPhase'
         idx.srcHit = ~cellfun('isempty', strfind(regNames,'srcHit'));
         idx.itemHit = ~cellfun('isempty', strfind(regNames,'itemHit'));
