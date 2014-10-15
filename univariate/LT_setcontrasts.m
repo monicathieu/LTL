@@ -27,7 +27,6 @@ Xsize = size(SPM.xX.xKXs.X,2);
 
 regNames = SPM.xX.name;
 
-
 switch task 
     case 'lab'
         con=labSetCons(regNames, analysis);
@@ -143,7 +142,7 @@ switch analysis
     case 'analysisByPerf_noPhase'
         idx.allHit = ~cellfun('isempty', strfind(regNames,'hit'));
         idx.srcHit = ~cellfun('isempty', strfind(regNames,'srcHit'));
-        idx.hitrcMiss = ~cellfun('isempty', strfind(regNames,'hitrcMiss'));
+        idx.hitSrcMiss = ~cellfun('isempty', strfind(regNames,'hitSrcMiss'));
         idx.itemHit = ~cellfun('isempty', strfind(regNames,'itemHit'));
         idx.miss = ~cellfun('isempty', strfind(regNames,'miss'));
         idx.CR = ~cellfun('isempty', strfind(regNames,'CR'));
@@ -166,6 +165,12 @@ switch analysis
         idx.allHit = ~cellfun('isempty', strfind(regNames,'hit'));
         idx.srcHit = ~cellfun('isempty', strfind(regNames,'srcHit'));
         idx.hitrcMiss = ~cellfun('isempty', strfind(regNames,'hitrcMiss'));
+        con.hitSrcHit_gr_hitSrcMiss = idx.bf1 .* balCon_SimpFx(idx.srcHit - idx.hitSrcMiss);
+        con.hitSrcHit_gr_hitItemHit = idx.bf1 .* balCon_SimpFx(idx.srcHit - idx.itemHit);
+    case 'ByPerf_noPhase_simple'
+        idx.allHit = ~cellfun('isempty', strfind(regNames,'hit'));
+        idx.srcHit = ~cellfun('isempty', strfind(regNames,'srcHit'));
+        idx.hitSrcMiss = ~cellfun('isempty', strfind(regNames,'hitSrcMiss'));
         idx.itemHit = ~cellfun('isempty', strfind(regNames,'itemHit'));
         idx.miss = ~cellfun('isempty', strfind(regNames,'miss'));
         idx.CR = ~cellfun('isempty', strfind(regNames,'CR'));
@@ -174,14 +179,13 @@ switch analysis
         con.all_gr_Baseline = idx.bf1;
         con.hit_gr_CR = idx.bf1 .* balCon_SimpFx(idx.allHit - idx.CR);
         con.hit_gr_Miss = idx.bf1 .* balCon_SimpFx(idx.allHit - idx.miss);
-        con.hitrcHit_gr_hitrcMiss = idx.bf1 .* balCon_SimpFx(idx.srcHit - idx.hitrcMiss);
-        con.hitrcHit_gr_hitItemHit = idx.bf1 .* balCon_SimpFx(idx.srcHit - idx.itemHit);   
     case 'analysisByPerfAndPhase'
         idx.srcHit = ~cellfun('isempty', strfind(regNames,'srcHit'));
         idx.itemHit = ~cellfun('isempty', strfind(regNames,'itemHit'));
         
         idx.hit = ~cellfun('isempty', strfind(regNames,'Hit'))+~cellfun('isempty', strfind(regNames,'hit'));
         
+
         idx.phase1 = ~cellfun('isempty', strfind(regNames,'Phase1'));
         idx.phase3 = ~cellfun('isempty', strfind(regNames,'Phase3'));
         idx.phase4 = ~cellfun('isempty', strfind(regNames,'Phase4'));
