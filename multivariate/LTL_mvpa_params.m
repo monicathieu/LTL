@@ -51,6 +51,31 @@ end
     
 %% training
 switch S.trainTask
+    case 'srcMiss_true_o_f_s'
+        parTr = LT_Params(subj_id, 'lab');
+        S.onsetsTrainDir = [S.expt_dir S.subj_id '/analysis/labMVPA/'];
+        S.condsTrain = {{'OBJsrcInc'}  {'FACEsrcInc'} {'SCENEsrcInc'} } ;
+        S.TrainRuns = par.scansSelect.(par.task);
+        S.durTrain = sum(par.(par.task).numvols(S.TrainRuns)) * par.TR;
+        S.filenames_train = vertcat(par.swascanfilesByRun.lab{S.TrainRuns});
+        [~, ~,idxTr] = LTLab_fMRIBehAnalysis_Ret(par);
+    case 'itemHit_true_o_f_s'
+        parTr = LT_Params(subj_id, 'lab');
+        S.onsetsTrainDir = [S.expt_dir S.subj_id '/analysis/labMVPA/'];
+        S.condsTrain = {{'OBJnoSrc'}  {'FACEnoSrc'} {'SCENEnoSrc'} } ;
+        S.TrainRuns = par.scansSelect.(par.task);
+        S.durTrain = sum(par.(par.task).numvols(S.TrainRuns)) * par.TR;
+        S.filenames_train = vertcat(par.swascanfilesByRun.lab{S.TrainRuns});
+        [~, ~,idxTr] = LTLab_fMRIBehAnalysis_Ret(par);
+
+    case 'srcHit_o_f_s'
+        parTr = LT_Params(subj_id, 'lab');
+        S.onsetsTrainDir = [S.expt_dir S.subj_id '/analysis/labMVPA/'];
+        S.condsTrain = {{'OBJobj'}  {'FACEface'} {'SCENEscene'} } ;
+        S.TrainRuns = par.scansSelect.(par.task);
+        S.durTrain = sum(par.(par.task).numvols(S.TrainRuns)) * par.TR;
+        S.filenames_train = vertcat(par.swascanfilesByRun.lab{S.TrainRuns});
+        [~, ~,idxTr] = LTLab_fMRIBehAnalysis_Ret(par);
     case 'OLDNEW'
         parTr = LT_Params(subj_id, 'lab');
         S.onsetsTrainDir = [S.expt_dir S.subj_id '/analysis/labMVPA/'];
@@ -79,17 +104,42 @@ switch S.testTask
         S.condsTest = {{'old'}  {'new'} } ;
         S.TestRuns = par.scansSelect.(par.task);
         S.durTest = sum(par.(par.task).numvols(S.TestRuns)) * par.TR;
-        S.filenames_test = vertcat(par.swascanfilesByRun.lab{S.TrainRuns});
+        S.filenames_test = vertcat(par.swascanfilesByRun.lab{S.TestRuns});
         % %     S.filenames_test = vertcat(par.betasByRun{S.TestRuns});
         [~, ~,idxTe] = LTLab_fMRIBehAnalysis_Ret(par);
     case 'obj_face_scene'
-        parTr = LT_Params(subj_id, 'lab');
+        parTe = LT_Params(subj_id, 'lab');
         S.onsetsTestDir = [S.expt_dir S.subj_id '/analysis/labMVPA/'];
         S.condsTest = {{'obj'}  {'face'} {'scene'} } ;
         S.TestRuns = par.scansSelect.(par.task);
         S.durTest = sum(par.(par.task).numvols(S.TestRuns)) * par.TR;
         S.filenames_test = vertcat(par.swascanfilesByRun.lab{S.TestRuns});
         [~, ~,idxTe] = LTLab_fMRIBehAnalysis_Ret(par);
+    case 'srcHit_o_f_s'
+        parTe = LT_Params(subj_id, 'lab');
+        S.onsetsTestDir = [S.expt_dir S.subj_id '/analysis/labMVPA/'];
+        S.condsTest = {{'OBJobj'}  {'FACEface'} {'SCENEscene'} } ;
+        S.TestRuns = par.scansSelect.(par.task);
+        S.durTest = sum(par.(par.task).numvols(S.TestRuns)) * par.TR;
+        S.filenames_test = vertcat(par.swascanfilesByRun.lab{S.TestRuns});
+        [~, ~,idxTe] = LTLab_fMRIBehAnalysis_Ret(par);
+    case 'srcMiss_true_o_f_s'
+        parTe = LT_Params(subj_id, 'lab');
+        S.onsetsTestDir = [S.expt_dir S.subj_id '/analysis/labMVPA/'];
+        S.condsTest = {{'OBJsrcInc'}  {'FACEsrcInc'} {'SCENEsrcInc'} } ;
+        S.TestRuns = par.scansSelect.(par.task);
+        S.durTest = sum(par.(par.task).numvols(S.TestRuns)) * par.TR;
+        S.filenames_test = vertcat(par.swascanfilesByRun.lab{S.TestRuns});
+        [~, ~,idxTe] = LTLab_fMRIBehAnalysis_Ret(par);
+    case 'itemHit_true_o_f_s'
+        parTe = LT_Params(subj_id, 'lab');
+        S.onsetsTestDir = [S.expt_dir S.subj_id '/analysis/labMVPA/'];
+        S.condsTest = {{'OBJnoSrc'}  {'FACEnoSrc'} {'SCENEnoSrc'} } ;
+        S.TestRuns = par.scansSelect.(par.task);
+        S.durTest = sum(par.(par.task).numvols(S.TestRuns)) * par.TR;
+        S.filenames_test = vertcat(par.swascanfilesByRun.lab{S.TestRuns});
+        [~, ~,idxTe] = LTLab_fMRIBehAnalysis_Ret(par);
+
 end
 
 S.condnames = S.condsTrain;
